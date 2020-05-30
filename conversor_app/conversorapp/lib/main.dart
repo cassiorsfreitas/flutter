@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:flutter/services.dart';
+
 //biblioteca que permite fazer as requisições em http
 import 'package:http/http.dart' as http;
 
@@ -14,17 +16,19 @@ const request = "https://api.hgbrasil.com/finance?key=7822b134";
 
 void main() async {
   runApp(MaterialApp(
+      
+      debugShowCheckedModeBanner: false,
       home: Home(),
       theme: ThemeData(
         hintColor: Colors.amber,
         primaryColor: Colors.white,
-        inputDecorationTheme: InputDecorationTheme(
-        enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.amber)),
-        focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
-        hintStyle: TextStyle(color: Colors.amber),
-)),
-      ));
+        ),
+        
+      )
+      );
 }
+
+
 
 Future<Map> getData() async {
   //variavel que recebe a resposta do servidor | solicitação get request e não retorna na hora | await vai fazer esperar
@@ -85,21 +89,28 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setEnabledSystemUIOverlays([]);
     return Scaffold(
-      
-      backgroundColor: Colors.grey[900],
-      appBar: AppBar(
-        
-        backgroundColor: Colors.black,
-        title: Text("Meu conversor (\$)",
-            style: TextStyle(
-              fontSize: 20.0,
-              fontWeight: FontWeight.w500,
-              color: Colors.amber
-            )),
-        centerTitle: false,
-        
+      backgroundColor: Colors.white,
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.amber[800],
+        child: Icon(Icons.refresh),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+
+      bottomNavigationBar: BottomAppBar(
+        shape: CircularNotchedRectangle(),
+        color: Colors.amber,
+        child: Row(
+          children: <Widget>[
+            IconButton(
+              icon: Icon(Icons.menu),
+              onPressed: () {})
+          ],
+        ),
+      ),
+      
+      
       body: FutureBuilder<Map>(
           future: getData(),
           builder: (context, snapshot) {
@@ -125,22 +136,51 @@ class _HomeState extends State<Home> {
                 } else {
                   dolar = snapshot.data["results"]["currencies"]["USD"]["buy"];
                   euro = snapshot.data["results"]["currencies"]["EUR"]["buy"];
-
+                  
+                  // LAYOUT COMEÇA AQUI
                   return SingleChildScrollView(
-                    padding: EdgeInsets.all(10.0),
-                    child: Column(
+                    padding: EdgeInsets.all(20.0),
+                    child: Column( 
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: <Widget>[
                         Container(
-                          margin: const EdgeInsets.all(10.0),
-                          child: Icon( Icons.monetization_on, size: 100.0, color: Colors.amber),
+                          decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10.0),
+                          color: Colors.amber,
+                          boxShadow: [BoxShadow(
+                            color: Colors.grey.withOpacity(0.5),
+                            spreadRadius: 2,
+                            blurRadius: 7,
+                            offset: Offset(0, 3), // changes position of shadow
+                          ),
+                        ],
                         ),
-                        Divider(),
-                        buildTextField("Reais", "R\$", realController, _realChanged),
-                        Divider(),
-                        buildTextField("Dolares", "US\$", dolarController, _dolarChanged),
-                        Divider(),
-                        buildTextField("Euros", "€", euroController, _euroChanged),
+                        
+                          padding: new EdgeInsets.all(30.0),
+                          child: Column(
+                            children: <Widget>[
+                              buildTextField("Reais", "R\$", realController, _realChanged),
+                              SizedBox(height: 7),
+                              buildTextField("Dolares", "US\$", dolarController, _dolarChanged),
+                              SizedBox(height: 7),
+                              buildTextField("Euros", "€", euroController, _euroChanged),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 14),
+                        Container(
+                          decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10.0),
+                          color: Colors.cyan[100],
+                          
+                        ),
+                          padding: new EdgeInsets.all(30.0),
+                          child: Column(
+                            children: <Widget>[
+                              SizedBox(height: 60),
+                            ],
+                          ),
+                        ),                        
                       ],
                     ),
                     );
@@ -157,9 +197,18 @@ Widget buildTextField(String label, String prefix, TextEditingController c, Func
     controller: c,
     decoration: InputDecoration(
       labelText: label,
-      labelStyle: TextStyle(color: Colors.amber),
-      border: OutlineInputBorder(),
-      prefixText: prefix
+      labelStyle: TextStyle(color: Colors.white),
+      prefixText: prefix,
+      filled: true,
+      enabledBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.white, width: 1.0),
+        borderRadius: BorderRadius.circular(25.0),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.amber[800], width: 1.0),
+        borderRadius: BorderRadius.circular(25.0),
+      ),
+      
     ),
     style: TextStyle(
       color: Colors.amber,
@@ -168,3 +217,4 @@ Widget buildTextField(String label, String prefix, TextEditingController c, Func
     keyboardType: TextInputType.number,
   );
 }
+
